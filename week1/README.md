@@ -47,3 +47,9 @@ week1
 │ └── Class_1_2_EDA_CaliforniaHousing.ipynb
 └── README.md
 ```
+
+## Autor
+
+Eng. Ivan Mamani
+
+Responsável pelo desenvolvimento do conteúdo e notebooks desta semana.

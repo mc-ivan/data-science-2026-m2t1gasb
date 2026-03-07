@@ -85,4 +85,10 @@ Para a comunicação formal dos resultados de investigações ou projetos, os es
 
 O uso deste template garante uniformidade e facilita a avaliação dos trabalhos.
 
-[![View Paper Template DOCX](https://img.shields.io/badge/View-Paper_Template_DOCX-blue?logo=microsoftword&logoColor=white)](CSDS-352-paper-template.docx)
+[![View Paper Template DOCX](https://img.shields.io/badge/View-Paper_Template_DOCX-blue?logo=microsoftword&logoColor=white)](DS-Modelo_de_Paper-Relatorio_de_Laboratorio.docx)
+
+## Autor
+
+Eng. Ivan Mamani
+
+Tutor responsável pelo desenvolvimento do curso e pelos templates de relatórios e papers.
