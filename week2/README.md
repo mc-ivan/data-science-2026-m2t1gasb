@@ -44,7 +44,7 @@ Durante a semana implementamos modelos de regressão em dois exemplos práticos:
 ## Material da aula
 
 Slides:  
-[![View PDF](https://img.shields.io/badge/View-Slides_PDF-red?logo=adobeacrobatreader&logoColor=white)](content/2.ModelosDeRegressão.pdf)
+[![View PDF](https://img.shields.io/badge/View-Slides_PDF-red?logo=adobeacrobatreader&logoColor=white)](content/2.RegressionModels.pdf)
 
 
 ## Autor
