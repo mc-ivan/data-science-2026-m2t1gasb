@@ -26,7 +26,7 @@ Ao final do curso, os estudantes serão capazes de:
 | [**Week 1**](week1/README.md) | Introduction to Data Science and Machine Learning |
 | [**Week 2**](week2/README.md) | Regression and Classification: Linear Models |
 | [**Week 3**](week3/README.md) | Regression and Classification: Neural Networks |
-| **Week 4** | Feature Vectors and Embeddings |
+| [**Week 4**](week4/README.md) | Feature Vectors and Embeddings |
 | **Week 5** | Support Vector Machines |
 | **Week 6** | Unsupervised Learning: Clustering and Dimensionality Reduction |
 | **Week 7** | Model Evaluation and Validation |
