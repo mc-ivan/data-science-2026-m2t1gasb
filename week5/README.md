@@ -52,7 +52,7 @@ Durante a semana desenvolvemos um experimento prático completo:
    Objetivo:
    > Comparar diferentes modelos de classificação e entender como o SVM se comporta em relação a outras abordagens.
 
-   [![Open In Colab](https://img.shields.io/badge/Open%20in-Colab-F9AB00?logo=googlecolab&logoColor=white)](notebooks/Class5_SVM.ipynb)
+   [![Open In Colab](https://img.shields.io/badge/Open%20in-Colab-F9AB00?logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/mc-ivan/data-science-2026-m2t1gasb/blob/main/week5/notebooks/Class5_SVM.ipynb)
 
 ## Material da aula
 
