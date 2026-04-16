@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🧪 Cancer Classification PRO</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #E0FFFF;
+            margin: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #008080;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            margin: 30px auto;
+            width: 70%;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .slider-container {
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        button {
+            background-color: #008080;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #004D40;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .low-risk { color: green; }
+        .high-risk { color: red; }
+    </style>
+</head>
+
+<body>
+
+<h1>🧪 Cancer Classification - Flask App</h1>
+
+<div class="container">
+
+    <h3>Casos de Teste</h3>
+    <select onchange="loadCase(this.value)">
+        <option value="manual">Manual</option>
+        <option value="1">Saudável</option>
+        <option value="2">Moderado</option>
+        <option value="3">Alto risco</option>
+        <option value="4">Crítico</option>
+    </select>
+
+    <div id="inputs"></div>
+
+    <h3>⚙️ Threshold</h3>
+    <input type="range" min="0.1" max="0.9" step="0.01" value="0.5"
+        id="threshold" oninput="updateThreshold()">
+    <p><span id="thValue">0.5</span></p>
+
+    <button onclick="predict()">🔍 Analisar</button>
+
+    <div id="result" class="result"></div>
+
+    <h3>Predição</h3>
+    <div id="chart" style="height:300px;"></div>
+
+    <div id="gauge" style="height:350px;"></div>
+
+    <!-- <h3>Avaliação do Modelo</h3>
+    <div id="roc" style="height:300px;"></div>
+    <div id="confusion" style="height:300px;"></div>
+
+    <h3>Comparativo de Modelos</h3>
+    <div id="models" style="height:400px;"></div>
+
+    <h3>Distribuição de Features</h3>
+    <div id="dist_age" style="height:300px;"></div>
+    <div id="dist_bmi" style="height:300px;"></div>
+    <div id="dist_glucose" style="height:300px;"></div> -->
+
+</div>
+
+<!-- Plotly -->
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+<script>
+
+// FEATURES
+const features = [
+    {name:"Age",min:20,max:90,value:50},
+    {name:"BMI",min:10,max:50,value:25},
+    {name:"Glucose",min:50,max:200,value:100},
+    {name:"Insulin",min:0,max:50,value:10},
+    {name:"HOMA",min:0,max:20,value:2},
+    {name:"Leptin",min:0,max:50,value:10},
+    {name:"Adiponectin",min:0,max:50,value:10},
+    {name:"Resistin",min:0,max:50,value:10},
+    {name:"MCP-1",min:0,max:1000,value:200}
+];
+
+const cases = {
+    1:[30,22,50,5,1,5,20,5,150],
+    2:[50,28,110,15,3,15,10,10,300],
+    3:[65,34,160,25,7,30,5,20,600],
+    4:[75,38,200,40,10,45,3,30,900]
+};
+
+// SLIDERS
+const container = document.getElementById("inputs");
+
+features.forEach((f,i)=>{
+    const div=document.createElement("div");
+    div.className="slider-container";
+    div.innerHTML=`
+        <label>${f.name}: <span id="val${i}">${f.value}</span></label>
+        <input type="range" min="${f.min}" max="${f.max}" value="${f.value}"
+        id="input${i}" oninput="updateValue(${i})">
+    `;
+    container.appendChild(div);
+});
+
+function updateValue(i){
+    document.getElementById(`val${i}`).innerText =
+        document.getElementById(`input${i}`).value;
+}
+
+function loadCase(id){
+    if(id==="manual")return;
+    cases[id].forEach((v,i)=>{
+        document.getElementById(`input${i}`).value=v;
+        updateValue(i);
+    });
+}
+
+function updateThreshold(){
+    document.getElementById("thValue").innerText =
+        document.getElementById("threshold").value;
+}
+
+// PREDICT
+async function predict(){
+
+    const values = features.map((_,i)=>
+        parseFloat(document.getElementById(`input${i}`).value)
+    );
+
+    const threshold = parseFloat(document.getElementById("threshold").value);
+
+    const res = await fetch("/predict",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({features:values})
+    });
+
+    const data = await res.json();
+
+    if(data.error){
+        document.getElementById("result").innerText=data.error;
+        return;
+    }
+
+    const highRisk = data.proba_cancer > threshold;
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.className = highRisk ? "result high-risk":"result low-risk";
+
+    resultDiv.innerText =
+        `${highRisk?"❗ ALTO RISCO":"✅ BAIXO RISCO"} | ${data.proba_cancer.toFixed(2)}`;
+
+    drawChart(data.proba_healthy,data.proba_cancer);
+    drawGauge(data.proba_cancer);
+}
+
+// BAR
+function drawChart(h,c){
+    Plotly.newPlot("chart",[{
+        x:["Saudável","Câncer"],
+        y:[h,c],
+        type:"bar",
+        marker:{color:["#20B2AA","#008080"]}
+    }]);
+}
+
+// GAUGE
+function drawGauge(p){
+    Plotly.newPlot("gauge",[{
+        type:"indicator",
+        mode:"gauge+number",
+        value:p*100,
+        title:{text:"Risco (%)"},
+        gauge:{
+            axis:{range:[0,100]},
+            steps:[
+                {range:[0,30],color:"#20B2AA"},
+                {range:[30,70],color:"#FFD700"},
+                {range:[70,100],color:"#FF4C4C"}
+            ]
+        }
+    }]);
+}
+
+// ROC
+async function loadMetrics(){
+
+    const res = await fetch("/metrics");
+    const d = await res.json();
+
+    drawROC(d.fpr, d.tpr, d.auc);
+    drawConfusionMatrix(d.confusion_matrix);
+
+    drawModelComparison(d.results);
+    drawDistributions(d);
+}
+
+function drawModelComparison(results){
+
+    const models = Object.keys(results);
+    const metrics = Object.keys(results[models[0]]);
+
+    const traces = metrics.map(metric => ({
+        x: models,
+        y: models.map(m => results[m][metric]),
+        name: metric,
+        type: 'bar'
+    }));
+
+    Plotly.newPlot("models", traces, {
+        barmode: 'group',
+        title: "Métricas por Modelo"
+    });
+}
+
+function drawDistribution(data, container, title) {
+
+    const mean = data.reduce((a,b)=>a+b,0)/data.length;
+    const std = Math.sqrt(
+        data.map(x => (x-mean)**2).reduce((a,b)=>a+b)/data.length
+    );
+
+    const x = [];
+    const y = [];
+
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+
+    for(let i=min; i<=max; i+= (max-min)/50){
+        x.push(i);
+        y.push((1/(std*Math.sqrt(2*Math.PI))) *
+            Math.exp(-0.5*((i-mean)/std)**2)
+        );
+    }
+
+    Plotly.newPlot(container, [
+        {
+            x: data,
+            type: 'histogram',
+            histnorm: 'probability density',
+            marker: {color:"#20B2AA"},
+            name: "Dados"
+        },
+        {
+            x: x,
+            y: y,
+            type: 'scatter',
+            mode: 'lines',
+            line: {color:"#008080"},
+            name: "Gaussiana"
+        }
+    ], {
+        title: title
+    });
+}
+
+function drawDistributions(d) {
+
+    drawDistribution(d.age, "dist_age", "Distribuição Age");
+    drawDistribution(d.bmi, "dist_bmi", "Distribuição BMI");
+    drawDistribution(d.glucose, "dist_glucose", "Distribuição Glucose");
+}
+
+loadMetrics();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cancer Classification UI</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #E0FFFF;
+            text-align: center;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #008080;
+        }
+
+        textarea {
+            width: 80%;
+            height: 120px;
+            margin: 10px;
+        }
+
+        button {
+            background-color: #008080;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #20B2AA;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧪 Cancer Classification</h1>
+
+    <p>Insira 30 features separadas por vírgula:</p>
+
+    <textarea id="features">
+14.0,20.0,89.0,580.0,0.1,0.2,0.3,0.1,0.2,0.06,0.4,1.2,2.5,40.0,0.005,0.02,0.03,0.01,0.02,0.003,15.0,25.0,100.0,700.0,0.14,0.3,0.4,0.15,0.3,0.08
+    </textarea>
+
+    <br>
+
+    <button onclick="predict()">Prever</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        async function predict() {
+            const text = document.getElementById("features").value;
+
+            // Converte string em array
+            const features = text.split(",").map(x => parseFloat(x.trim()));
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ features: features })
+                });
+
+                const data = await response.json();
+
+                document.getElementById("result").innerHTML =
+                    `Resultado: <b>${data.prediction === 1 ? "Benigno" : "Maligno"}</b><br>
+                     Probabilidade: ${data.probability.toFixed(4)}`;
+
+            } catch (error) {
+                document.getElementById("result").innerHTML = "Erro na requisição";
+            }
+        }
+    </script>
+
+</body>
+</html>

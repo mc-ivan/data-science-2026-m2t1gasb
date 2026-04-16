@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: cancer-flask-api
+
+    # Mapeamento de portas (host:container)
+    ports:
+      - "5003:5000"
+
+    # Volume para refletir mudanças sem rebuild
+    volumes:
+      - .:/app
+
+    restart: always
